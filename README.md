@@ -5,17 +5,11 @@ This project contains SQL scripts for analyzing Netflix viewership data for the 
 
 ## Prerequisites
 - **SQL Server**: Access to a SQL Server instance (e.g., Microsoft SQL Server or Azure SQL Database).
-- Délégation de l'administration du serveur SQL : Assurez-vous que l'utilisateur dispose des autorisations nécessaires pour créer des bases de données, des tables, des vues et des procédures stockées.
 - **Database Setup**: The `NETFLIX` database must be created, and the `netflix_2023` table must be populated.
 - **SQL Client**: Use SQL Server Management Studio (SSMS), Azure Data Studio, or another SQL client.
 
-## Database Schema
-The `netflix_2023` table is expected to include:
-- `Hours_Viewed`: Viewership hours (string or numeric, cast to `BIGINT` in queries).
-- `Content_Type`: `movie` or `show`.
-- `Language_Indicator`: Language of the content.
-- `Release_Date`: Release date of the content.
-- Other columns may exist but are not used in all queries.
+## Import the Data from flat file
+Import the data from file option in the SSMS, it will automatically try to get the schema
 
 ## Setup Instructions
 1. **Create the Database**:
@@ -26,20 +20,27 @@ The `netflix_2023` table is expected to include:
    ```sql
    USE NETFLIX;
    ```
-3. **Load Data**:
-   Populate the `netflix_2023` table with your dataset. Example schema:
-   ```sql
-   CREATE TABLE netflix_2023 (
-       Title NVARCHAR(255),
-       Hours_Viewed NVARCHAR(50), -- Cast to BIGINT in queries
-       Content_Type NVARCHAR(50),
-       Language_Indicator NVARCHAR(50),
-       Release_Date DATE
-       -- Add other columns as needed
-   );
-   ```
-   Use `BULK INSERT`, SSMS Import Wizard, or other methods to load data.
+3.  **Load Data**:
+Load the Data using the option of Import from flat file.
 
+4. **Data Verification**
+    ```sql
+   select * from netflix_2023;
+   ```
+5.  **Sample Data Output**
+   ```sql
+Title                                                                                                                                                                                                                                                            Available_Globally Release_Date Hours_Viewed Language_Indicator                                 Content_Type
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- ------------------ ------------ ------------ -------------------------------------------------- --------------------------------------------------
+The Night Agent: Season 1                                                                                                                                                                                                                                        1                  2023-03-23   812100000    English                                            Show
+Ginny & Georgia: Season 2                                                                                                                                                                                                                                        1                  2023-01-05   665100000    English                                            Show
+The Glory: Season 1 // 더 글로리: 시즌 1                                                                                                                                                                                                                               1                  2022-12-30   622800000    Korean                                             Show
+Wednesday: Season 1                                                                                                                                                                                                                                              1                  2022-11-23   507700000    English                                            Show
+Queen Charlotte: A Bridgerton Story                                                                                                                                                                                                                              1                  2023-05-04   503000000    English                                            Movie
+You: Season 4                                                                                                                                                                                                                                                    1                  2023-02-09   440600000    English                                            Show
+La Reina del Sur: Season 3                                                                                                                                                                                                                                       0                  2022-12-30   429600000    English                                            Show
+Outer Banks: Season 3                                                                                                                                                                                                                                            1                  2023-02-23   402500000    English                                            Show
+Ginny & Georgia: Season 1                                                                                                                                                                                                                                        1                  2021-02-24   302100000    English                                            Show
+```
 ## SQL Scripts Overview
 The scripts perform the following analyses:
 1. **Comparison of Viewer Hours by Content Type**: Viewership hours by `Language_Indicator` for movies and shows.
