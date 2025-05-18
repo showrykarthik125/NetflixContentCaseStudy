@@ -1,4 +1,4 @@
-# Netflix 2023 Viewership Analysis
+# Netflix 2023 Viewership Analysis using SQL
 
 ## Overview
 This project contains SQL scripts for analyzing Netflix viewership data for the year 2023. The scripts provide insights into viewership patterns, content types (movies vs. shows), language distribution, seasonal trends, and release strategies. The dataset is stored in a SQL Server database named `NETFLIX` with a table `netflix_2023`.
