@@ -49,11 +49,10 @@ The scripts perform the following analyses:
 4. **Materialized View for Monthly Viewership**: Attempted materialized view (`NetflixMonthlyView1`).
 5. **Total Hours Viewed by Language**: Viewership hours by `Language_Indicator`.
 6. **Top 5 Titles by Viewership**: Top 5 titles by viewership hours.
-7. **Content Type Comparison by Month**: Movie vs. show viewership by month.
-8. **Stored Procedure for Dynamic Month Selection**: Query movie/show viewership for a specific month.
-9. **Seasonal Viewership**: Viewership hours by season (Spring, Summer, Fall, Winter).
-10. **Monthly Releases and Viewership**: Release counts and viewership by month.
-11. **Weekly Release Patterns and Viewership**: Release counts and viewership by weekday, with rankings.
+7. **Stored Procedure for Dynamic Month Selection**: Query movie/show viewership for a specific month.
+8. **Seasonal Viewership**: Viewership hours by season (Spring, Summer, Fall, Winter).
+9. **Monthly Releases and Viewership**: Release counts and viewership by month.
+10. **Weekly Release Patterns and Viewership**: Release counts and viewership by weekday, with rankings.
 
 ## Sample Query Outputs
 Below are sample outputs for selected queries.
@@ -221,8 +220,30 @@ ONE PIECE: Season 1                                                             
 
 ```
 
+### 7. Stored Procedure Example (February)
+**Query**:
+```sql
+CREATE PROCEDURE SelectMonth @MonthNum int
+AS
+select DATENAME(MONTH,Release_Date) as Month,
+       SUM(CASE WHEN content_type = 'movie' THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS movie_viewers,
+       SUM(CASE WHEN content_type = 'show' THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS show_viewers
+	   from netflix_2023
+	   WHERE Release_Date is not null AND MONTH(release_date) = @MonthNum
+	   group by DATENAME(MONTH,Release_Date), MONTH(release_date)
+	   order by MONTH(release_date)
 
-### 7. Seasonal Viewership
+exec SelectMonth @MonthNum = 2
+```
+
+**Sample Output**:
+```
+Month                          movie_viewers        show_viewers
+------------------------------ -------------------- --------------------
+February                       1654400000           5449300000
+```
+
+### 8. Seasonal Viewership: Viewership hours by season (Spring, Summer, Fall, Winter).
 **Query**:
 ```sql
 SELECT SUM(CASE WHEN MONTH(Release_Date) >= 3 AND MONTH(Release_Date) <= 5 THEN CAST(Hours_Viewed AS BIGINT) ELSE 0 END) AS Spring,
@@ -240,71 +261,7 @@ Spring               Summer               Fall                 Winter
 ```
 
 
-### 8. Stored Procedure Example (February)
-**Query**:
-```sql
-CREATE PROCEDURE SelectMonth @MonthNum int
-AS
-select DATENAME(MONTH,Release_Date) as Month,
-       SUM(CASE WHEN content_type = 'movie' THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS movie_viewers,
-       SUM(CASE WHEN content_type = 'show' THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS show_viewers
-	   from netflix_2023
-	   WHERE Release_Date is not null AND MONTH(release_date) = @MonthNum
-	   group by DATENAME(MONTH,Release_Date), MONTH(release_date)
-	   order by MONTH(release_date)
-
-exec SelectMonth @MonthNum = 2
-```
-
-**Sample Output**:
-```
-Month                          movie_viewers        show_viewers
------------------------------- -------------------- --------------------
-February                       1654400000           5449300000
-```
-
-
-
-### 9. Stored Procedure for Dynamic Month Selection: Query movie/show viewership for a specific month.
-**Query**:
-```sql
-CREATE PROCEDURE SelectMonth @MonthNum int
-AS
-select DATENAME(MONTH,Release_Date) as Month,
-       SUM(CASE WHEN content_type = 'movie' THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS movie_viewers,
-       SUM(CASE WHEN content_type = 'show' THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS show_viewers
-	   from netflix_2023
-	   WHERE Release_Date is not null AND MONTH(release_date) = @MonthNum
-	   group by DATENAME(MONTH,Release_Date), MONTH(release_date)
-	   order by MONTH(release_date)
-
-exec SelectMonth @MonthNum = 2
-```
-**Sample Output**:
-```
-Month                          movie_viewers        show_viewers
------------------------------- -------------------- --------------------
-February                       1654400000           5449300000
-```
-
-### 10. Seasonal Viewership: Viewership hours by season (Spring, Summer, Fall, Winter).
-**Query**:
-```sql
-select 
-       SUM(CASE WHEN MONTH(Release_Date) >= 3 AND MONTH(Release_Date) <= 5 THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS Spring,
-	   SUM(CASE WHEN MONTH(Release_Date) >= 6 AND MONTH(Release_Date) <= 8 THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS Summer,
-	   SUM(CASE WHEN MONTH(Release_Date) >= 9 AND MONTH(Release_Date) <= 11 THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS Fall,
-	   SUM(CASE WHEN MONTH(Release_Date) = 12 OR MONTH(Release_Date) <= 2 THEN cast(Hours_Viewed as bigint) ELSE 0 END) AS Winter
-	   from netflix_2023
-```
-**Sample Output**:
-```
-Spring               Summer               Fall                 Winter
--------------------- -------------------- -------------------- --------------------
-21397400000          21864600000          23134900000          24431100000
-```
-
-### 11. Monthly Releases and Viewership: Release counts and viewership by month.
+### 9. Monthly Releases and Viewership: Release counts and viewership by month.
 **Query**:
 ```sql
 select DATENAME(MONTH,Release_Date) as Month, 
@@ -333,7 +290,7 @@ November                       734            7749500000
 December                       787            10055800000
 ```
 
-### 12. Weekly Release Patterns and Viewership: Release counts and viewership by weekday, with rankings.
+### 10. Weekly Release Patterns and Viewership: Release counts and viewership by weekday, with rankings.
 **Query**:
 ```sql
 select DATENAME(WEEKDAY,Release_Date) as Week, 
